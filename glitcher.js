@@ -99,6 +99,49 @@ class Glitcher {
     return destImg;
   }
 
+  glitchFlowLine() {
+    this.flowLineImgs.forEach((v, i, arr) => {
+      arr[i].pixels = this.flowLine(this.imgOrigin, v);
+      if (arr[i].pixels) this.replaceData(this.imgOrigin, arr[i].pixels);
+    });
+  }
+
+  glitchShiftLine() {
+    this.shiftLineImgs.forEach((v, i, arr) => {
+      if (floor(random(100)) > 50) {
+        arr[i] = this.shiftLine(this.imgOrigin);
+        this.replaceData(this.imgOrigin, arr[i]);
+      } else {
+        if (arr[i]) this.replaceData(this.imgOrigin, arr[i]);
+      }
+    });
+  }
+
+  glitchShiftRGB() {
+    this.shiftRGBs.forEach((v, i, arr) => {
+      if (floor(random(100)) > 65) {
+        arr[i] = this.shiftRGB(this.imgOrigin);
+        this.replaceData(this.imgOrigin, arr[i]);
+      }
+    });
+  }
+
+  scatterImgs() {
+    this.scatImgs.forEach((obj) => {
+      push();
+      translate((width - this.imgOrigin.width) / 2, (height - this.imgOrigin.height) / 2);
+      if (floor(random(100)) > 80) {
+        obj.x = floor(random(-this.imgOrigin.width * 0.3, this.imgOrigin.width * 0.7));
+        obj.y = floor(random(-this.imgOrigin.height * 0.1, this.imgOrigin.height));
+        obj.img = this.getRandomRectImg(this.imgOrigin);
+      }
+      if (obj.img) {
+        image(obj.img, obj.x, obj.y);
+      }
+      pop();
+    });
+  }
+
   show() {
     // restore the original state
     this.replaceData(this.imgOrigin, this.copyData);
@@ -119,48 +162,17 @@ class Glitcher {
       return;
     }
 
-    // flow line
-    this.flowLineImgs.forEach((v, i, arr) => {
-      arr[i].pixels = this.flowLine(this.imgOrigin, v);
-      if (arr[i].pixels) this.replaceData(this.imgOrigin, arr[i].pixels);
-    });
+    this.glitchFlowLine();
 
-    // shift line
-    this.shiftLineImgs.forEach((v, i, arr) => {
-      if (floor(random(100)) > 50) {
-        arr[i] = this.shiftLine(this.imgOrigin);
-        this.replaceData(this.imgOrigin, arr[i]);
-      } else {
-        if (arr[i]) this.replaceData(this.imgOrigin, arr[i]);
-      }
-    });
+    this.glitchShiftLine();
 
-    // shift rgb
-    this.shiftRGBs.forEach((v, i, arr) => {
-      if (floor(random(100)) > 65) {
-        arr[i] = this.shiftRGB(this.imgOrigin);
-        this.replaceData(this.imgOrigin, arr[i]);
-      }
-    });
+    this.glitchShiftRGB();
 
     push();
     translate((width - this.imgOrigin.width) / 2, (height - this.imgOrigin.height) / 2);
     image(this.imgOrigin, 0, 0);
     pop();
 
-    // scat image
-    this.scatImgs.forEach((obj) => {
-      push();
-      translate((width - this.imgOrigin.width) / 2, (height - this.imgOrigin.height) / 2);
-      if (floor(random(100)) > 80) {
-        obj.x = floor(random(-this.imgOrigin.width * 0.3, this.imgOrigin.width * 0.7));
-        obj.y = floor(random(-this.imgOrigin.height * 0.1, this.imgOrigin.height));
-        obj.img = this.getRandomRectImg(this.imgOrigin);
-      }
-      if (obj.img) {
-        image(obj.img, obj.x, obj.y);
-      }
-      pop();
-    });
+    this.scatterImgs();
   }
 }
