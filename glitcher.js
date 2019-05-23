@@ -99,33 +99,14 @@ class Glitcher {
     return destImg;
   }
 
-  show() {
-    // restore the original state
-    this.replaceData(this.imgOrigin, this.copyData);
-
-    // sometimes pass without effect processing
-    const n = floor(random(100));
-    if (n > 75 && this.throughFlag) {
-      this.throughFlag = false;
-      setTimeout(() => {
-        this.throughFlag = true;
-      }, floor(random(40, 400)));
-    }
-    if (!this.throughFlag) {
-      push();
-      translate((width - this.imgOrigin.width) / 2, (height - this.imgOrigin.height) / 2);
-      image(this.imgOrigin, 0, 0);
-      pop();
-      return;
-    }
-
-    // flow line
+  glitchFlowLine() {
     this.flowLineImgs.forEach((v, i, arr) => {
       arr[i].pixels = this.flowLine(this.imgOrigin, v);
       if (arr[i].pixels) this.replaceData(this.imgOrigin, arr[i].pixels);
     });
+  }
 
-    // shift line
+  glitchShiftLine() {
     this.shiftLineImgs.forEach((v, i, arr) => {
       if (floor(random(100)) > 50) {
         arr[i] = this.shiftLine(this.imgOrigin);
@@ -134,21 +115,18 @@ class Glitcher {
         if (arr[i]) this.replaceData(this.imgOrigin, arr[i]);
       }
     });
+  }
 
-    // shift rgb
+  glitchShiftRGB() {
     this.shiftRGBs.forEach((v, i, arr) => {
       if (floor(random(100)) > 65) {
         arr[i] = this.shiftRGB(this.imgOrigin);
         this.replaceData(this.imgOrigin, arr[i]);
       }
     });
+  }
 
-    push();
-    translate((width - this.imgOrigin.width) / 2, (height - this.imgOrigin.height) / 2);
-    image(this.imgOrigin, 0, 0);
-    pop();
-
-    // scat image
+  glitchScatImages() {
     this.scatImgs.forEach((obj) => {
       push();
       translate((width - this.imgOrigin.width) / 2, (height - this.imgOrigin.height) / 2);
@@ -158,9 +136,45 @@ class Glitcher {
         obj.img = this.getRandomRectImg(this.imgOrigin);
       }
       if (obj.img) {
-        image(obj.img, obj.x, obj.y);
+        tint(255, random(127, 255));
+        image(obj.img, random(width), random(height));
       }
       pop();
     });
+  }
+
+  show() {
+    // restore the original state
+    // this.replaceData(this.imgOrigin, this.copyData);
+
+    // sometimes pass without effect processing
+    const n = floor(random(100));
+    if (n > 75 && this.throughFlag) {
+      this.throughFlag = false;
+      setTimeout(() => {
+        this.throughFlag = true;
+      }, floor(random(40, 400)));
+    }
+    // if (!this.throughFlag) {
+    //   push();
+    //   translate((width - this.imgOrigin.width) / 2, (height - this.imgOrigin.height) / 2);
+    //   image(this.imgOrigin, 0, 0);
+    //   pop();
+    //   return;
+    // }
+
+    this.glitchFlowLine();
+
+    this.glitchShiftLine();
+
+    this.glitchShiftRGB();
+
+    // dislay glitched images
+    // push();
+    // translate((width - this.imgOrigin.width) / 2, (height - this.imgOrigin.height) / 2);
+    // image(this.imgOrigin, 0, 0);
+    // pop();
+
+    this.glitchScatImages();
   }
 }
