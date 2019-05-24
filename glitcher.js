@@ -108,7 +108,7 @@ class Glitcher {
 
   glitchShiftLine() {
     this.shiftLineImgs.forEach((v, i, arr) => {
-      if (floor(random(100)) > 50) {
+      if (floor(random(100)) > 0) { // 50
         arr[i] = this.shiftLine(this.imgOrigin);
         this.replaceData(this.imgOrigin, arr[i]);
       } else {
@@ -117,12 +117,12 @@ class Glitcher {
     });
   }
 
-  glitchShiftRGB() {
+  glitchShiftRGB(sendIt) {
     this.shiftRGBs.forEach((v, i, arr) => {
-      if (floor(random(100)) > 65) {
+      // if (sendIt || floor(random(100)) > 65) {
         arr[i] = this.shiftRGB(this.imgOrigin);
         this.replaceData(this.imgOrigin, arr[i]);
-      }
+      // }
     });
   }
 
@@ -142,22 +142,24 @@ class Glitcher {
     });
   }
 
-  show() {
+  show(glitch, rgb, scale=1) {
     // restore the original state
     this.replaceData(this.imgOrigin, this.copyData);
+    const w = this.imgOrigin.width * scale;
+    const h = this.imgOrigin.height * scale;
 
     // sometimes pass without effect processing
-    const n = floor(random(100));
-    if (n > 75 && this.throughFlag) {
-      this.throughFlag = false;
-      setTimeout(() => {
-        this.throughFlag = true;
-      }, floor(random(40, 400)));
-    }
-    if (!this.throughFlag) {
+    // const n = floor(random(100));
+    // if (n > 75 && this.throughFlag) {
+    //   this.throughFlag = false;
+    //   setTimeout(() => {
+    //     this.throughFlag = true;
+    //   }, floor(random(40, 400)));
+    // }
+    if (!glitch) { // (!this.throughFlag) {
       push();
-      translate((width - this.imgOrigin.width) / 2, (height - this.imgOrigin.height) / 2);
-      image(this.imgOrigin, 0, 0);
+      translate((width - w) / 2, (height - h) / 2);
+      image(this.imgOrigin, 0, 0, w , h);
       pop();
       return;
     }
@@ -166,13 +168,13 @@ class Glitcher {
 
     this.glitchShiftLine();
 
-    this.glitchShiftRGB();
+    this.glitchShiftRGB(rgb);
 
     push();
-    translate((width - this.imgOrigin.width) / 2, (height - this.imgOrigin.height) / 2);
-    image(this.imgOrigin, 0, 0);
+    translate((width - w) / 2, (height - h) / 2);
+    image(this.imgOrigin, 0, 0, w, h);
     pop();
 
-    this.scatterImgs();
+    // this.scatterImgs();
   }
 }
