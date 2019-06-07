@@ -40,10 +40,10 @@ function draw() {
   const scale = map(avgLevel, 0, 1, 0.2, 0.8);
 
   if (isLoaded) glitch.show(isPeak, highCentroid);
-  if (isIconLoaded) iconGlitch.show(isPeak, highCentroid, scale);
+  // if (isIconLoaded) iconGlitch.show(isPeak, highCentroid, scale);
 
   // TODO: intelligently adjust threshold
-  peakDetect.threshold = 0.2;
+  peakDetect.threshold = 0.3;
 }
 
 function mousePressed() {

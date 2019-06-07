@@ -149,14 +149,14 @@ class Glitcher {
     const h = this.imgOrigin.height * scale;
 
     // sometimes pass without effect processing
-    // const n = floor(random(100));
-    // if (n > 75 && this.throughFlag) {
-    //   this.throughFlag = false;
-    //   setTimeout(() => {
-    //     this.throughFlag = true;
-    //   }, floor(random(40, 400)));
-    // }
-    if (!glitch) { // (!this.throughFlag) {
+    const n = floor(random(100));
+    if (n > 75 && this.throughFlag) {
+      this.throughFlag = false;
+      setTimeout(() => {
+        this.throughFlag = true;
+      }, floor(random(40, 400)));
+    }
+    if (!this.throughFlag) {
       push();
       translate((width - w) / 2, (height - h) / 2);
       image(this.imgOrigin, 0, 0, w , h);
@@ -166,9 +166,9 @@ class Glitcher {
 
     this.glitchFlowLine();
 
-    this.glitchShiftLine();
+    // this.glitchShiftLine();
 
-    this.glitchShiftRGB(rgb);
+    // this.glitchShiftRGB(rgb);
 
     push();
     translate((width - w) / 2, (height - h) / 2);
