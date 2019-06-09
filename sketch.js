@@ -59,7 +59,7 @@ function draw() {
       glitcher.glitchShiftLine(random(300), rows);
     }
 
-    const range = constrain(floor(map(level, 0, .5, 0, 40)), 0, 40);
+    const range = constrain(floor(map(level, 0, .5, 0, 30)), 0, 30);
     glitcher.randomRGBShift(range);
     glitcher.show();
   }
