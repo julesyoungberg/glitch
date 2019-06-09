@@ -28,7 +28,7 @@ function setup() {
   fft = new p5.FFT(smoothing, binCount);
   fft.setInput(mic);
 
-  const thresh = 0.1;
+  const thresh = 0.35;
   peakDetect = new p5.PeakDetect(20, 20000, thresh, 10);
   // const loMid = 300;
   // const hiMid = 1000;
@@ -59,7 +59,7 @@ function draw() {
       glitcher.glitchShiftLine(random(300), rows);
     }
 
-    const range = constrain(floor(map(level, 0, .7, 0, 30)), 0, 30);
+    const range = constrain(floor(map(level, 0, .7, 0, 20)), 0, 20);
     glitcher.randomRGBShift(range);
     glitcher.show();
   }
