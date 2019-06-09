@@ -16,7 +16,7 @@ class Glitcher {
     this.originalImg = new Uint8ClampedArray(this.img.pixels);
     this.sortConfigs = new Array(this.img.height).fill(0).map(_ => ({
       position: floor(random(this.img.width)),
-      speed: floor(random(-10, 10)),
+      speed: floor(random(-10, 10) || 2),
       reverse: random(2) > 1,
     }));
   }
