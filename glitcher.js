@@ -84,12 +84,9 @@ class Glitcher {
       const length = map(level, 0, 255, 0, this.img.width / 2);
       const center = this.pixelIndex(config.position, y);
       const start = center - floor(length * this.channelLen / 2);
-      // console.log(floor(config.speed / (level + 0.001)));
       config.position += floor(config.speed / (level / 10 + 0.001));
 
       const pixels = [];
-
-      // console.log(start, length);
 
       for (let i = 0; i < length; i++) {
         const index = start + i * this.channelLen;

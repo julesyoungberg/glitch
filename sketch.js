@@ -59,16 +59,15 @@ function draw() {
     // ];
     // glitcher.shiftRGB({ shift, blend: 0.8, iterations: 1, hold: true });
 
-    glitcher.sortPixels(spectrum);
-
     if (peakDetect.isDetected) {
       // glitcher.glitchFlowLines();
       const rows = map(centroid, 100, 10000, 1, 10);
       glitcher.glitchShiftLine(random(200), rows);
     }
 
-    const range = constrain(floor(map(level, 0, .5, 0, 30)), 0, 30);
+    const range = constrain(floor(map(level, 0, 1, 0, 30)), 0, 30);
     glitcher.randomRGBShift(range);
+    glitcher.sortPixels(spectrum);
     glitcher.show();
   }
   // if (isIconLoaded) iconGlitch.show(isPeak, highCentroid, scale);
