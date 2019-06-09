@@ -28,7 +28,7 @@ function setup() {
   fft = new p5.FFT(smoothing, binCount);
   fft.setInput(mic);
 
-  const thresh = 0.3;
+  const thresh = 0.25;
   peakDetect = new p5.PeakDetect(20, 20000, thresh, 10);
   // const loMid = 300;
   // const hiMid = 1000;
