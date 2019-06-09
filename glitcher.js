@@ -79,7 +79,7 @@ class Glitcher {
       const center = this.pixelIndex(config.position, y);
       const start = center - floor(length * this.channelLen / 2);
       // console.log(floor(config.speed / (level + 0.001)));
-      config.position += floor(config.speed / (level + 0.001));
+      config.position += floor(config.speed / (level / 10 + 0.001));
 
       const pixels = [];
 
