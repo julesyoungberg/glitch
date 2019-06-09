@@ -19,12 +19,16 @@ class Glitcher {
       speed: floor(random(-10, 10) || 2),
       reverse: random(2) > 1,
     }));
+    this.holdShiftedImg = false;
+    this.shiftedImg = null;
   }
 
   reset() {
     if (this.holdShiftLine && this.shiftLineImg) {
       ImgUtil.copyPixels(this.shiftLineImg, this.img);
-      if (random(100) > 50) this.glitchShiftLine(random(300));
+      if (random(100) > 50) this.glitchShiftLine(random(200));
+    } else if (this.holdShiftedImg && this.shiftedImg) {
+      ImgUtil.copyPixels(this.shiftedImg, this.img);
     } else {
       ImgUtil.copyPixels(this.originalImg, this.img);
     }
@@ -68,6 +72,8 @@ class Glitcher {
   ///////////////////////
   // sorts pixels horizontally by overall brightness
   sortPixels(spectrum) {
+    const destPixels = new Uint8ClampedArray(this.img.pixels);
+
     for (let y = 0; y < this.img.height; y++) {
       if (y % 2) continue;
 
@@ -88,9 +94,9 @@ class Glitcher {
       for (let i = 0; i < length; i++) {
         const index = start + i * this.channelLen;
         pixels[i] = {
-          r: this.img.pixels[index],
-          g: this.img.pixels[index + 1],
-          b: this.img.pixels[index + 2],
+          r: destPixels[index],
+          g: destPixels[index + 1],
+          b: destPixels[index + 2],
         };
       }
 
@@ -99,11 +105,13 @@ class Glitcher {
 
       for (let i = 0; i < length; i++) {
         const index = start + i * this.channelLen;
-        this.img.pixels[index]     = pixels[i].r;
-        this.img.pixels[index + 1] = pixels[i].g;
-        this.img.pixels[index + 2] = pixels[i].b;
+        destPixels[index]     = pixels[i].r;
+        destPixels[index + 1] = pixels[i].g;
+        destPixels[index + 2] = pixels[i].b;
       }
     }
+
+    ImgUtil.copyPixels(destPixels, this.img);
   }
 
   ///////////////////////
@@ -147,7 +155,7 @@ class Glitcher {
   ///////////////////////
   // shifts the rgb channels of the source image by the values in shift array
   // blend determines how much of the shifted image to blend into the original
-  shiftRGB({ shift, blend=1, iterations=1 }) {
+  shiftRGB({ shift, blend=1, iterations=1, hold=false }) {
     const srcImg = this.img;
     let srcPixels = srcImg.pixels;
     const destPixels = new Uint8ClampedArray(srcImg.pixels);
@@ -160,6 +168,13 @@ class Glitcher {
         destPixels[i] = srcPixels[i] * (1 - blend) + srcPixels[j] * blend;
       }));
       srcPixels = new Uint8ClampedArray(destPixels);
+    }
+
+    if (hold) {
+      this.holdShiftedImg = true;
+      this.shiftedImg = destPixels;
+    } else {
+      this.holdShiftedImg = false;
     }
 
     ImgUtil.copyPixels(destPixels, this.img);

@@ -51,12 +51,20 @@ function draw() {
 
   if (isLoaded) {
     glitcher.reset();
+
+    // const shift = [
+    //   glitcher.pixelIndex(-5, 0),
+    //   glitcher.pixelIndex(0, 0),
+    //   glitcher.pixelIndex(5, 0)
+    // ];
+    // glitcher.shiftRGB({ shift, blend: 0.8, iterations: 1, hold: true });
+
     glitcher.sortPixels(spectrum);
 
     if (peakDetect.isDetected) {
       // glitcher.glitchFlowLines();
       const rows = map(centroid, 100, 10000, 1, 10);
-      glitcher.glitchShiftLine(random(300), rows);
+      glitcher.glitchShiftLine(random(200), rows);
     }
 
     const range = constrain(floor(map(level, 0, .5, 0, 30)), 0, 30);
