@@ -42,4 +42,15 @@ class ImgUtil {
     destImg.loadPixels();
     return destImg;
   }
+
+  // Takes a 4 element array representation of a pixel and returns brightness
+  static getBrightness(pixel) {
+    const [r, g, b] = pixel.map(i => i / 255);
+    let max = r, min = r;
+    if (g > max) max = g;
+    if (b > max) max = b;
+    if (g < min) min = g;
+    if (b < min) min = b;
+    return (max + min) / 2;
+  }
 }

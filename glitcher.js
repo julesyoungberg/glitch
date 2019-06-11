@@ -90,25 +90,119 @@ class Glitcher {
 
       for (let i = 0; i < length; i++) {
         const index = start + i * this.channelLen;
-        pixels[i] = {
-          r: destPixels[index],
-          g: destPixels[index + 1],
-          b: destPixels[index + 2],
-        };
+        pixels[i] = [
+          destPixels[index],
+          destPixels[index + 1],
+          destPixels[index + 2],
+        ];
       }
 
-      pixels.sort((a, b) => (a.r + a.g + a.b) - (b.r + b.g + b.b));
+      pixels.sort((a, b) => ImgUtil.getBrightness(a) - ImgUtil.getBrightness(b));
       if (config.reverse) pixels.reverse();
 
       for (let i = 0; i < length; i++) {
         const index = start + i * this.channelLen;
-        destPixels[index]     = pixels[i].r;
-        destPixels[index + 1] = pixels[i].g;
-        destPixels[index + 2] = pixels[i].b;
+        destPixels[index]     = pixels[i][0];
+        destPixels[index + 1] = pixels[i][1];
+        destPixels[index + 2] = pixels[i][2];
       }
     }
 
     ImgUtil.copyPixels(destPixels, this.img);
+  }
+
+  //////////////////////////
+  // VERTICAL PIXEL GLITCH
+  //////////////////////////
+  verticalPixelGlitch(distortion=1) {
+    const destPixels = new Uint8ClampedArray(this.img.pixels);
+    let newColumn = false;
+    let currentPixelPosition = -1, currentPixelRowIndex = -1;
+
+    for (let x = 0; x < this.img.width; x++) {
+      newColumn = true;
+      currentPixelRowIndex = 0;
+      let verticalPixelArray = [];
+
+      for (let y = 0; y < this.img.height; y++) {
+        const pixelIndex = this.pixelIndex(x, y);
+        const rgba = ImgUtil.rgba(pixelIndex);
+        const currentPixel = rgba.map(i => this.img.pixels[i]);
+        const brightness = ImgUtil.getBrightness(currentPixel);
+
+        if (brightness > distortion) {
+          rgba.forEach(i => destPixels[i] = this.img.pixels[i]);
+
+          if (!newColumn) {
+            this.sortPixelsInColumn(verticalPixelArray, 0, currentPixelRowIndex - 1);
+
+            for (let j = 0; j < currentPixelRowIndex; j++) {
+              const newIndex = this.pixelIndex(x, j + currentPixelPosition)
+              ImgUtil.rgb(newIndex).forEach(i => {
+                destPixels[i] = verticalPixelArray[j][i];
+              });
+            }
+
+            verticalPixelArray = [];
+            currentPixelRowIndex = 0;
+            newVerticalPixelColumn = true;
+          }
+
+        } else if (brightness <= distortion) {
+          if (newColumn) {
+            currentPixelPosition = y;
+            newColumn = false;
+          }
+
+          verticalPixelArray[currentPixelRowIndex++] = currentPixel;
+        }
+      }
+
+      if (!newColumn) {
+        this.sortPixelsInColumn(verticalPixelArray, 0, currentPixelRowIndex - 1);
+
+        for (let j = 0; j < currentPixelRowIndex; j++) {
+          const newIndex = this.pixelIndex(x, j + currentPixelPosition);
+          ImgUtil.rgb(newIndex).forEach(i => {
+            destPixels[i] = verticalPixelArray[j][i];
+          });
+        }
+      }
+    }
+
+    ImgUtil.copyPixels(destPixels, this.img);
+  }
+
+  sortPixelsInColumn(pixelArray, leftPixel, rightPixel) {
+    let leftSidePixel = leftPixel;
+    let rightSidePixel = rightPixel;
+    let halfBrightness = ImgUtil.getBrightness(
+      pixelArray[floor((leftPixel + rightPixel) / 2)]
+    );
+
+    while (leftSidePixel <= rightSidePixel) {
+      while (pixelArray[leftSidePixel] && ImgUtil.getBrightness(pixelArray[leftSidePixel]) < halfBrightness) {
+        if (pixelArray[leftSidePixel + 1]) leftSidePixel++;
+      }
+
+      while (pixelArray[rightSidePixel] && ImgUtil.getBrightness(pixelArray[rightSidePixel]) > halfBrightness) {
+        if (pixelArray[rightSidePixel - 1]) rightSidePixel--;
+      }
+
+      if (leftSidePixel <= rightSidePixel) {
+        const currentPixel = pixelArray[leftSidePixel];
+        pixelArray[leftSidePixel--] = pixelArray[rightSidePixel];
+        pixelArray[rightSidePixel++] = currentPixel;
+      }
+    }
+
+    if (leftPixel < rightSidePixel)
+      sortPixelsInColumn(pixelArray, leftPixel, rightSidePixel);
+
+    if (leftSidePixel < rightPixel)
+      sortPixelsInColumn(pixelArray, leftSidePixel, rightPixel);
+
+    return pixelArray;
   }
 
   ///////////////////////
@@ -187,6 +281,19 @@ class Glitcher {
     const shifted = this.shiftRGB({
       shift, blend: 0.8, iterations: 1
     });
+  }
+
+  ///////////////////////
+  // TV STATIC
+  ///////////////////////
+  tvStatic(amount=0.5) {
+    const destPixels = new Uint8ClampedArray(this.img.pixels);
+
+    ImgUtil.forEachPixel(this.img, rgba => rgba.forEach(i => {
+      destPixels[i] = this.img.pixels[i] * (1 - amount) + random(255) * amount;
+    }));
+
+    ImgUtil.copyPixels(destPixels, this.img);
   }
 
 

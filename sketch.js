@@ -68,6 +68,8 @@ function draw() {
     const range = constrain(floor(map(level, 0, 1, 0, 30)), 0, 30);
     glitcher.randomRGBShift(range);
     glitcher.sortPixels(spectrum);
+    // glitcher.verticalPixelGlitch();
+    // glitcher.tvStatic(0.1);
     glitcher.show();
   }
   // if (isIconLoaded) iconGlitch.show(isPeak, highCentroid, scale);
