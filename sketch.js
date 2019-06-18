@@ -61,15 +61,19 @@ function draw() {
 
     if (peakDetect.isDetected) {
       // glitcher.glitchFlowLines();
-      const rows = map(centroid, 100, 10000, 1, 10);
-      glitcher.glitchShiftLine(random(200), rows);
+      if (Math.random() > 0.5) {
+        const rows = map(centroid, 100, 10000, 1, 10);
+        glitcher.glitchShiftLine(random(200), rows);
+      } else {
+        glitcher.pixelSlice({ distortion: 9, duration: random(200) });
+      }
     }
 
     const range = constrain(floor(map(level, 0, 1, 0, 30)), 0, 30);
     glitcher.randomRGBShift(range);
-    glitcher.sortPixels(spectrum);
+    // glitcher.sortPixels(spectrum);
     // glitcher.verticalPixelGlitch();
-    // glitcher.tvStatic(0.1);
+    // glitcher.tvStatic(0.2);
     glitcher.show();
   }
   // if (isIconLoaded) iconGlitch.show(isPeak, highCentroid, scale);

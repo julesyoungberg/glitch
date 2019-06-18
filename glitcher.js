@@ -3,32 +3,46 @@ class Glitcher {
     this.channelLen = 4;
     this.img = img;
     this.img.loadPixels();
+    this.originalImg = new Uint8ClampedArray(this.img.pixels);
+
     this.flowLines = [ {
       pixels: null,
       y: floor(random(1000)),
       speed: floor(random(4, 24)),
       randX: floor(random(24, 80)),
     } ];
+
     this.shiftLineImg = null;
     this.holdShiftLine = false;
     this.shiftLineImgs = new Array(6).fill(null);
+
     this.scatImgs = new Array(3).fill({ img: null, x: 0, y: 0 });
-    this.originalImg = new Uint8ClampedArray(this.img.pixels);
+
     this.sortConfigs = new Array(this.img.height).fill(0).map(_ => ({
       position: floor(random(this.img.width)),
       speed: floor(random(-10, 10) || 2),
       reverse: random(2) > 1,
     }));
+
     this.holdShiftedImg = false;
     this.shiftedImg = null;
+
+    this.holdSlicedImg = false;
+    this.slicedImg = null;
   }
 
   reset() {
     if (this.holdShiftLine && this.shiftLineImg) {
-      ImgUtil.copyPixels(this.shiftLineImg, this.img);
-      if (random(100) > 50) this.glitchShiftLine(random(200));
+      if (random() > .5) this.glitchShiftLine(random(200));
+      else ImgUtil.copyPixels(this.shiftLineImg, this.img);
+
     } else if (this.holdShiftedImg && this.shiftedImg) {
       ImgUtil.copyPixels(this.shiftedImg, this.img);
+
+    } else if (this.holdSlicedImg && this.slicedImg) {
+      if (random() > .5) this.pixelSlice({ duration: random(200) })
+      else ImgUtil.copyPixels(this.slicedImg, this.img);
+
     } else {
       ImgUtil.copyPixels(this.originalImg, this.img);
     }
@@ -109,100 +123,6 @@ class Glitcher {
     }
 
     ImgUtil.copyPixels(destPixels, this.img);
-  }
-
-  //////////////////////////
-  // VERTICAL PIXEL GLITCH
-  //////////////////////////
-  verticalPixelGlitch(distortion=1) {
-    const destPixels = new Uint8ClampedArray(this.img.pixels);
-    let newColumn = false;
-    let currentPixelPosition = -1, currentPixelRowIndex = -1;
-
-    for (let x = 0; x < this.img.width; x++) {
-      newColumn = true;
-      currentPixelRowIndex = 0;
-      let verticalPixelArray = [];
-
-      for (let y = 0; y < this.img.height; y++) {
-        const pixelIndex = this.pixelIndex(x, y);
-        const rgba = ImgUtil.rgba(pixelIndex);
-        const currentPixel = rgba.map(i => this.img.pixels[i]);
-        const brightness = ImgUtil.getBrightness(currentPixel);
-
-        if (brightness > distortion) {
-          rgba.forEach(i => destPixels[i] = this.img.pixels[i]);
-
-          if (!newColumn) {
-            this.sortPixelsInColumn(verticalPixelArray, 0, currentPixelRowIndex - 1);
-
-            for (let j = 0; j < currentPixelRowIndex; j++) {
-              const newIndex = this.pixelIndex(x, j + currentPixelPosition)
-              ImgUtil.rgb(newIndex).forEach(i => {
-                destPixels[i] = verticalPixelArray[j][i];
-              });
-            }
-
-            verticalPixelArray = [];
-            currentPixelRowIndex = 0;
-            newVerticalPixelColumn = true;
-          }
-
-        } else if (brightness <= distortion) {
-          if (newColumn) {
-            currentPixelPosition = y;
-            newColumn = false;
-          }
-
-          verticalPixelArray[currentPixelRowIndex++] = currentPixel;
-        }
-      }
-
-      if (!newColumn) {
-        this.sortPixelsInColumn(verticalPixelArray, 0, currentPixelRowIndex - 1);
-
-        for (let j = 0; j < currentPixelRowIndex; j++) {
-          const newIndex = this.pixelIndex(x, j + currentPixelPosition);
-          ImgUtil.rgb(newIndex).forEach(i => {
-            destPixels[i] = verticalPixelArray[j][i];
-          });
-        }
-      }
-    }
-
-    ImgUtil.copyPixels(destPixels, this.img);
-  }
-
-  sortPixelsInColumn(pixelArray, leftPixel, rightPixel) {
-    let leftSidePixel = leftPixel;
-    let rightSidePixel = rightPixel;
-    let halfBrightness = ImgUtil.getBrightness(
-      pixelArray[floor((leftPixel + rightPixel) / 2)]
-    );
-
-    while (leftSidePixel <= rightSidePixel) {
-      while (pixelArray[leftSidePixel] && ImgUtil.getBrightness(pixelArray[leftSidePixel]) < halfBrightness) {
-        if (pixelArray[leftSidePixel + 1]) leftSidePixel++;
-      }
-
-      while (pixelArray[rightSidePixel] && ImgUtil.getBrightness(pixelArray[rightSidePixel]) > halfBrightness) {
-        if (pixelArray[rightSidePixel - 1]) rightSidePixel--;
-      }
-
-      if (leftSidePixel <= rightSidePixel) {
-        const currentPixel = pixelArray[leftSidePixel];
-        pixelArray[leftSidePixel--] = pixelArray[rightSidePixel];
-        pixelArray[rightSidePixel++] = currentPixel;
-      }
-    }
-
-    if (leftPixel < rightSidePixel)
-      sortPixelsInColumn(pixelArray, leftPixel, rightSidePixel);
-
-    if (leftSidePixel < rightPixel)
-      sortPixelsInColumn(pixelArray, leftSidePixel, rightPixel);
-
-    return pixelArray;
   }
 
   ///////////////////////
@@ -294,6 +214,25 @@ class Glitcher {
     }));
 
     ImgUtil.copyPixels(destPixels, this.img);
+  }
+
+  ///////////////////////
+  // VERTICAL GLITCH
+  ///////////////////////
+  verticalPixelGlitch(distortion) {
+    const destPixels = VerticalPixelGlitcher.glitch(this.img, distortion);
+    ImgUtil.copyPixels(destPixels, this.img);
+  }
+
+
+  ///////////////////////
+  // PIXEL SLICE
+  ///////////////////////
+  pixelSlice({ distortion=9, duration }) {
+    this.slicedImg = PixelSlice.glitch(this.img, distortion);
+    this.holdSlicedImg = true;
+    setTimeout(() => this.holdSlicedImg = false, duration);
+    ImgUtil.copyPixels(this.slicedImg, this.img);
   }
 
 
