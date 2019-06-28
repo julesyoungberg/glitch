@@ -3,7 +3,7 @@ class PixelSlice {
     if (distortion < 0 || distortion > 10) return img.pixels;
 
     const destPixels = new Uint8ClampedArray(img.pixels);
-    let yOffsets = -1;
+    let yOffset = -1;
 
     // for each column
     for (let x = 0; x < img.width; x++) {
@@ -20,7 +20,7 @@ class PixelSlice {
       for (let y = 0; y < img.height; y++) {
         const pixelIndex = ImgUtil.pixelIndex(x, y, img);
         // row distortion offset start
-        let offsetStart = y + randomSlice;
+        let offsetStart = y + yOffset;
         if (offsetStart > img.height - 1) offsetStart -= img.height;
         // row distortion offset end
         const offsetEnd = ImgUtil.pixelIndex(x, offsetStart, img);

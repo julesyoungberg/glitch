@@ -236,6 +236,15 @@ class Glitcher {
   }
 
 
+  ///////////////////////
+  // BIT SORT
+  ///////////////////////
+  bitSort(config={}) {
+    const sorted = PixelSlice.glitch(this.img, config);
+    ImgUtil.copyPixels(sorted, this.img);
+  }
+
+
   // scatters random rectangles from the image
   scatterImgs() {
     this.scatImgs.forEach((config) => {

@@ -53,4 +53,28 @@ class ImgUtil {
     if (b < min) min = b;
     return (max + min) / 2;
   }
+
+  // Takes a 4 element array representation of a pixel and returns the hue
+  static getHue(pixel) {
+    const [r, g, b] = pixel.map(i => i / 255);
+    if (r === g && g === b) return 0;
+
+    let max = r, min = r;
+    let delta, hue = 0;
+
+    if (g > max) max = g;
+    if (b > max) max = b;
+    if (g < min) min = g;
+    if (b < min) min = b;
+
+    delta = max - min;
+
+    if (r === max) hue = (g - b) / delta;
+    else if (g === max) hue = 2 + (b - r) / delta;
+    else if (b === max) hue = 4 + (r - g) / delta;
+
+    hue *= 60;
+    if (hue < 0) hue += 360;
+    return hue;
+  }
 }
