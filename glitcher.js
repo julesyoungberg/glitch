@@ -240,8 +240,26 @@ class Glitcher {
   // BIT SORT
   ///////////////////////
   bitSort(config={}) {
-    const sorted = PixelSlice.glitch(this.img, config);
+    const sorted = BitSort.glitch(this.img, config);
     ImgUtil.copyPixels(sorted, this.img);
+  }
+
+
+  ///////////////////////
+  // HORIZONTAL SORT
+  ///////////////////////
+  horizontalSort(interval=1) {
+    const sorted = HorizontalSort.glitch(this.img, interval);
+    ImgUtil.copyPixels(sorted, this.img);
+  }
+
+
+  ///////////////////////
+  // DATA BEND
+  ///////////////////////
+  dataBend(config={}) {
+    const result = DataBend.glitch(this.img, config);
+    ImgUtil.copyPixels(result, this.img);
   }
 
 

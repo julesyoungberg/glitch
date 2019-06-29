@@ -1,3 +1,4 @@
+// https://github.com/scriptkittie/GlitchKernel/blob/master/src/io/laniakia/algo/PixelSlice.java
 class PixelSlice {
   static glitch(img, distortion=1) {
     if (distortion < 0 || distortion > 10) return img.pixels;

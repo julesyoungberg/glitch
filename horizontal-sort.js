@@ -1,4 +1,5 @@
-class HorizontalPixelSort {
+// https://github.com/scriptkittie/GlitchKernel/blob/master/src/io/laniakia/algo/HorizontalPixelSort.java
+class HorizontalSort {
   static glitch(img, interval) {
     const destPixels = new Uint8ClampedArray(img.pixels);
 

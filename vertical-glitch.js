@@ -1,4 +1,5 @@
 // currently seems to crash the browser!! :(( perhaps testing in node is needed
+// https://github.com/scriptkittie/GlitchKernel/blob/master/src/io/laniakia/algo/VerticalPixelGlitch.java
 class VerticalGlitch {
   //////////////////////////
   // VERTICAL PIXEL GLITCH
