@@ -13,7 +13,7 @@ const binCount = 512;
 function setup() {
   createCanvas(windowWidth, windowHeight);
 
-  loadImage("den.jpg", img => {
+  loadImage("eerie.jpg", img => {
     glitcher = new Glitcher(img);
     isLoaded = true;
   });
@@ -70,8 +70,8 @@ function draw() {
     }
 
     const range = constrain(floor(map(level, 0, 1, 0, 30)), 0, 30);
-    // glitcher.randomRGBShift(range);
-    // glitcher.sortPixels(spectrum);
+    glitcher.randomRGBShift(range);
+    glitcher.sortPixels(spectrum);
     // glitcher.tvStatic(0.2);
     // glitcher.horizontalSort();
     glitcher.show();

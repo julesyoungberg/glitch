@@ -18,12 +18,6 @@ class Glitcher {
 
     this.scatImgs = new Array(3).fill({ img: null, x: 0, y: 0 });
 
-    this.sortConfigs = new Array(this.img.height).fill(0).map(_ => ({
-      position: floor(random(this.img.width)),
-      speed: floor(random(-10, 10) || 2),
-      reverse: random(2) > 1,
-    }));
-
     this.holdShiftedImg = false;
     this.shiftedImg = null;
 
@@ -85,40 +79,42 @@ class Glitcher {
   // SORT
   ///////////////////////
   // sorts pixels horizontally by overall brightness
+  // https://github.com/kimasxEndorf/ASDFPixelSort/blob/master/ASDFPixelSort.pde
   sortPixels(spectrum) {
+    let thresh = 10;
     const destPixels = new Uint8ClampedArray(this.img.pixels);
 
     for (let y = 0; y < this.img.height; y++) {
       if (y % 2) continue;
 
-      const config = this.sortConfigs[y];
       const bin = floor(map(y, 0, this.img.height, 0, spectrum.length / 2));
       const level = spectrum[bin];
+      let x = 0, xEnd = 0;
 
-      const length = map(level, 0, 255, 0, this.img.width / 2);
-      const center = this.pixelIndex(config.position, y);
-      const start = center - floor(length * this.channelLen / 2);
-      config.position += floor(config.speed / (level / 10 + 0.001));
+      while (xEnd < this.img.width - 1) {
+        let current = ImgUtil.getPixel(x, y, this.img);
+        while (x > 0 && ImgUtil.getBrightness(current) < thresh) {
+          x++;
+          if (x >= this.img.width) x = -1;
+        }
+        if (x < 0) break;
 
-      const pixels = [];
+        const length = map(level, 0, 1, 0, this.img.width - x);
+        xEnd = x + length;
+        const pixels = [];
 
-      for (let i = 0; i < length; i++) {
-        const index = start + i * this.channelLen;
-        pixels[i] = [
-          destPixels[index],
-          destPixels[index + 1],
-          destPixels[index + 2],
-        ];
-      }
+        for (let i = 0; i < length; i++) {
+          pixels[i] = ImgUtil.getPixel(x + i, y);
+        }
 
-      pixels.sort((a, b) => ImgUtil.getBrightness(a) - ImgUtil.getBrightness(b));
-      if (config.reverse) pixels.reverse();
+        pixels.sort(ImgUtil.compareBrightness);
 
-      for (let i = 0; i < length; i++) {
-        const index = start + i * this.channelLen;
-        destPixels[index]     = pixels[i][0];
-        destPixels[index + 1] = pixels[i][1];
-        destPixels[index + 2] = pixels[i][2];
+        for (let i = 0; i < length; i++) {
+          const index = ImgUtil.pixelIndex(x + i, y);
+          destPixels[index]     = pixels[i][0];
+          destPixels[index + 1] = pixels[i][1];
+          destPixels[index + 2] = pixels[i][2];
+        }
       }
     }
 
@@ -165,8 +161,8 @@ class Glitcher {
   // SHIFT RGB
   ///////////////////////
   // shifts the rgb channels of the source image by the values in shift array
-  // blend determines how much of the shifted image to blend into the original
-  shiftRGB({ shift, blend=1, iterations=1, hold=false }) {
+  // blxEnd determines how much of the shifted image to blxEnd into the original
+  shiftRGB({ shift, blxEnd=1, iterations=1, hold=false }) {
     const srcImg = this.img;
     let srcPixels = srcImg.pixels;
     const destPixels = new Uint8ClampedArray(srcImg.pixels);
@@ -176,7 +172,7 @@ class Glitcher {
         let j = i;
         if (idx < 3) j = (i + shift[idx]) % srcPixels.length;
         destPixels[i] = srcPixels[j];
-        destPixels[i] = srcPixels[i] * (1 - blend) + srcPixels[j] * blend;
+        destPixels[i] = srcPixels[i] * (1 - blxEnd) + srcPixels[j] * blxEnd;
       }));
       srcPixels = new Uint8ClampedArray(destPixels);
     }
@@ -199,7 +195,7 @@ class Glitcher {
     const shift = [ getRand(), getRand(), getRand() ];
 
     const shifted = this.shiftRGB({
-      shift, blend: 0.8, iterations: 1
+      shift, blxEnd: 0.8, iterations: 1
     });
   }
 

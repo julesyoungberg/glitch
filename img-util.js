@@ -12,6 +12,10 @@ class ImgUtil {
     return [ i, i + 1, i + 2, i + 3 ];
   }
 
+  static getPixel(x, y, img) {
+    return ImgUtil.rgba(ImgUtil.pixelIndex(x, y, img));
+  }
+
   // for each pixel in the given image run fn on the pixel's channel indices
   // yCondition allows for skipping rows based on the y value
   static forEachPixel(img, fn, yCondition) {
@@ -76,5 +80,9 @@ class ImgUtil {
     hue *= 60;
     if (hue < 0) hue += 360;
     return hue;
+  }
+
+  static compareBrightness(a, b) {
+    return ImgUtil.getBrightness(a) - ImgUtil.getBrightness(b);
   }
 }
