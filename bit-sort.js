@@ -1,4 +1,5 @@
 // https://github.com/scriptkittie/GlitchKernel/blob/master/src/io/laniakia/algo/BitSort.java
+// working but very slow
 class BitSort {
   static glitch(img, { verticalInterval=1, horizontalInterval=1, distortion=1 }) {
     const destPixels = new Uint8ClampedArray(img.pixels);
@@ -11,7 +12,7 @@ class BitSort {
           && (y + verticalInterval)   < img.height
           && (y + verticalInterval)   >= 0
           && (x + horizontalInterval) >= 0
-          &&  x >= 0 && y >= 0 && x < img.width && y < img.height
+          &&  x < img.width && y < img.height
         ) {
           // get actual pixel array index and rgba indices
           const pixelIndex = ImgUtil.pixelIndex(x, y, img);
@@ -27,9 +28,9 @@ class BitSort {
           const hue = ImgUtil.getHue(currentPixel);
           const nextHue = ImgUtil.getHue(nextPixel);
 
-          if (hue > (distortion + nextHue)) {
-            nextRgba.forEach(i => destPixels[i] = img.pixels[i]);
-            rgba.forEach(i => destPixels[i] = img.pixels[i]);
+          if (hue > (nextHue + distortion)) {
+            nextRgba.forEach((i, idx) => destPixels[i] = currentPixel[idx]);
+            rgba.forEach((i, idx) => destPixels[i] = nextPixel[idx]);
           }
         }
       }

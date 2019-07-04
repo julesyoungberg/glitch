@@ -13,7 +13,7 @@ const binCount = 512;
 function setup() {
   createCanvas(windowWidth, windowHeight);
 
-  loadImage("eerie.jpg", img => {
+  loadImage("den.jpg", img => {
     glitcher = new Glitcher(img);
     isLoaded = true;
   });
@@ -61,26 +61,26 @@ function draw() {
 
     if (peakDetect.isDetected) {
       // glitcher.glitchFlowLines();
-      if (Math.random() > 0.5) {
+      // if (Math.random() > 0.5) {
         const rows = map(centroid, 100, 10000, 1, 10);
         glitcher.glitchShiftLine(random(200), rows);
-      } else {
-        glitcher.pixelSlice({ distortion: 9, duration: random(200) });
-      }
+      // } else {
+      //   glitcher.pixelSlice({ distortion: 9, duration: random(200) });
+      // }
     }
 
     const range = constrain(floor(map(level, 0, 1, 0, 30)), 0, 30);
-    glitcher.randomRGBShift(range);
+    // glitcher.randomRGBShift(range);
     // glitcher.sortPixels(spectrum);
     // glitcher.verticalPixelGlitch();
     // glitcher.tvStatic(0.2);
-    // glitcher.bitSort({
-    //   horizontalInterval: 100,
-    //   verticalInterval: 100,
-    //   distortion: 100,
-    // });
     // glitcher.horizontalSort();
     // glitcher.dataBend();
+    glitcher.bitSort({
+      horizontalInterval: 100,
+      verticalInterval: 100,
+      distortion: 100 - level*100,
+    });
     glitcher.show();
   }
   // if (isIconLoaded) iconGlitch.show(isPeak, highCentroid, scale);
