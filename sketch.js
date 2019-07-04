@@ -72,15 +72,8 @@ function draw() {
     const range = constrain(floor(map(level, 0, 1, 0, 30)), 0, 30);
     // glitcher.randomRGBShift(range);
     // glitcher.sortPixels(spectrum);
-    // glitcher.verticalPixelGlitch();
     // glitcher.tvStatic(0.2);
     // glitcher.horizontalSort();
-    // glitcher.dataBend();
-    glitcher.bitSort({
-      horizontalInterval: 100,
-      verticalInterval: 100,
-      distortion: 100 - level*100,
-    });
     glitcher.show();
   }
   // if (isIconLoaded) iconGlitch.show(isPeak, highCentroid, scale);
