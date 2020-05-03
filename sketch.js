@@ -13,7 +13,7 @@ const binCount = 512;
 function setup() {
   createCanvas(windowWidth, windowHeight);
 
-  loadImage("eerie.jpg", img => {
+  loadImage("./images/eerie.jpg", img => {
     glitcher = new Glitcher(img);
     isLoaded = true;
   });
